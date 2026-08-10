@@ -1,38 +1,38 @@
-import { useState } from 'react'
-import type { Definition, ResponseMessage } from '../types/messages'
+import { useState } from "react";
+import type { Definition, ResponseMessage } from "../types/messages";
 
 export default function Popup() {
-  const [word, setWord] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [definition, setDefinition] = useState<Definition | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [word, setWord] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [definition, setDefinition] = useState<Definition | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const lookup = async (event?: React.FormEvent) => {
-    event?.preventDefault()
-    const term = word.trim()
-    if (!term) return
+    event?.preventDefault();
+    const term = word.trim();
+    if (!term) return;
 
-    setLoading(true)
-    setError(null)
-    setDefinition(null)
+    setLoading(true);
+    setError(null);
+    setDefinition(null);
 
     try {
       const response = (await chrome.runtime.sendMessage({
-        type: 'LOOKUP_WORD',
+        type: "LOOKUP_WORD",
         word: term,
-      })) as ResponseMessage
+      })) as ResponseMessage;
 
-      if (response.type === 'LOOKUP_RESULT' && response.ok) {
-        setDefinition(response.definition)
-      } else if (response.type === 'LOOKUP_RESULT') {
-        setError(response.error)
+      if (response.type === "LOOKUP_RESULT" && response.ok) {
+        setDefinition(response.definition);
+      } else if (response.type === "LOOKUP_RESULT") {
+        setError(response.error);
       }
     } catch (err) {
-      setError(String(err))
+      setError(String(err));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <main className="w-80 bg-white text-gray-900">
@@ -54,7 +54,7 @@ export default function Popup() {
             disabled={loading || !word.trim()}
             className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? '...' : 'Buscar'}
+            {loading ? "..." : "Buscar"}
           </button>
         </div>
       </form>
@@ -69,7 +69,9 @@ export default function Popup() {
 
             {definition.examples.length > 0 && (
               <div>
-                <h3 className="mb-1 text-xs font-semibold uppercase text-gray-500">Exemplos</h3>
+                <h3 className="mb-1 text-xs font-semibold uppercase text-gray-500">
+                  Exemplos
+                </h3>
                 <ul className="list-disc pl-5 text-sm">
                   {definition.examples.map((example) => (
                     <li key={example}>{example}</li>
@@ -80,7 +82,9 @@ export default function Popup() {
 
             {definition.synonyms.length > 0 && (
               <div>
-                <h3 className="mb-1 text-xs font-semibold uppercase text-gray-500">Sinônimos</h3>
+                <h3 className="mb-1 text-xs font-semibold uppercase text-gray-500">
+                  Sinônimos
+                </h3>
                 <div className="flex flex-wrap gap-1">
                   {definition.synonyms.map((synonym) => (
                     <span
@@ -99,5 +103,5 @@ export default function Popup() {
         )}
       </section>
     </main>
-  )
+  );
 }
