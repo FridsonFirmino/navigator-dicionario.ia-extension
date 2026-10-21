@@ -1,9 +1,9 @@
 {
-  "name": "dicionario-ia-extension",
+  "name": "dicionario.ia-by-context-extension",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Extensão de dicionário com IA para Google Chrome",
+  "description": "Extensão de dicionário.ia com contexto, para Google Chrome",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
