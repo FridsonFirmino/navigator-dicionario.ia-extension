@@ -15,9 +15,9 @@ Extensão de dicionário com IA para o Google Chrome, construída com:
 src/
 ├── manifest.json          # Manifesto V3 (entradas da extensão)
 ├── global.css             # Estilos globais (Tailwind)
-├── background/index.ts    # Service worker (menus de contexto, mensagens, configurações)
-├── content/index.ts       # Script de conteúdo (painel de definição sobre a página)
-├── popup/                 # Popup da extensão (React + Tailwind)
+├── background/background.ts # Service worker (menus, mensagens e configurações)
+├── sidepanel/             # Painel lateral do Chrome (React + Tailwind)
+├── popup/                 # Interface reutilizada pelo painel lateral
 ├── options/               # Página de opções (React + Tailwind)
 ├── services/              # Provedor de definições (integração com IA)
 └── types/messages.ts      # Contrato de mensagens e tipos compartilhados
@@ -38,7 +38,7 @@ npm run typecheck
 2. Acesse `chrome://extensions` no Google Chrome.
 3. Ative o **Modo do desenvolvedor** (canto superior direito).
 4. Clique em **Carregar sem compactação** e selecione a pasta `dist/`.
-5. Teste: selecione um texto em qualquer página ou use o menu de contexto para ver a definição.
+5. Clique no ícone da extensão para abrir o painel lateral. Para consultar uma seleção, clique nela com o botão direito e escolha **Traduzir no Dicionário IA**.
 
 ## Configurando a API de IA
 

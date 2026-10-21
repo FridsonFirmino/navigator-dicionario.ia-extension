@@ -5,11 +5,12 @@ import { getSettings, saveSettings } from "../utils/storage";
 
 chrome.runtime.onInstalled.addListener(async () => {
   await saveSettings(await getSettings());
+  await chrome.sidePanel.setOptions({ path: "src/sidepanel/index.html" });
 
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: "dicionario-ia-lookup",
-      title: 'Consultar "%s" no Dicionário.IA',
+      title: 'Traduzir "%s" no Dicionário IA',
       contexts: ["selection"],
     });
   });
@@ -23,8 +24,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   ) {
     const word = info.selectionText.trim();
     if (word) {
-      void lookupAndShow(word, tab.id);
+      void openSidebarWithWord(word, tab.windowId);
     }
+  }
+});
+
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.windowId !== undefined) {
+    void chrome.sidePanel.open({ windowId: tab.windowId });
   }
 });
 
@@ -67,23 +74,10 @@ async function lookupWordWithSettings(word: string): Promise<Definition> {
   return lookupWord(word, await getSettings());
 }
 
-async function lookupAndShow(word: string, tabId: number): Promise<void> {
-  try {
-    const definition = await lookupWordWithSettings(word);
-    await chrome.tabs.sendMessage(tabId, {
-      type: "SHOW_DEFINITION",
-      definition,
-    });
-  } catch (error) {
-    await chrome.tabs.sendMessage(tabId, {
-      type: "SHOW_DEFINITION",
-      definition: {
-        word,
-        meaning: `Não foi possível consultar "${word}".`,
-        examples: [],
-        synonyms: [],
-        source: String(error),
-      },
-    });
-  }
+async function openSidebarWithWord(word: string, windowId: number): Promise<void> {
+  const opening = chrome.sidePanel.open({ windowId });
+  await chrome.storage.session.set({
+    pendingLookup: { word, id: `${Date.now()}-${Math.random()}` },
+  });
+  await opening;
 }
