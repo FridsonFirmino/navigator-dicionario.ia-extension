@@ -38,7 +38,7 @@ npm run typecheck
 2. Acesse `chrome://extensions` no Google Chrome.
 3. Ative o **Modo do desenvolvedor** (canto superior direito).
 4. Clique em **Carregar sem compactação** e selecione a pasta `dist/`.
-5. Clique no ícone da extensão para abrir o painel lateral. Para consultar uma seleção, clique nela com o botão direito e escolha **Traduzir no Dicionário IA**.
+5. Clique no ícone da extensão para abrir o painel lateral. Para consultar uma seleção, clique nela com o botão direito, abra **Traduzir no contexto de…** e escolha uma área como Economia, Tecnologia ou Ciências.
 
 ## Configurando a API de IA
 

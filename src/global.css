@@ -1,12 +1,91 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
-  --color-primary: #4f46e5;
-  --color-primary-dark: #4338ca;
+@utility shadow-focus {
+  box-shadow: var(--shadow-focus);
+}
+
+@theme inline {
+  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, Consolas, "JetBrains Mono", monospace;
+
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-sunken: var(--sunken);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-focus: var(--line-focus);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-body: var(--ink-body);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-solid: var(--accent-solid);
+  --color-accent-soft: var(--accent-soft);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+}
+
+:root {
+  color-scheme: light;
+  --surface: #ffffff;
+  --raised: #fafafa;
+  --sunken: #f4f4f5;
+  --hover: #e4e4e7;
+  --line: rgb(228 228 231 / 0.5);
+  --line-strong: #d4d4d8;
+  --line-focus: #a1a1aa;
+  --ink: #18181b;
+  --ink-secondary: #3f3f46;
+  --ink-body: #52525b;
+  --ink-muted: #71717a;
+  --ink-faint: #a1a1aa;
+  --accent: #059669;
+  --accent-solid: #10b981;
+  --accent-soft: rgb(16 185 129 / 0.1);
+  --warning: #d97706;
+  --danger: #dc2626;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-focus: 0 4px 16px rgb(24 24 27 / 0.05);
+}
+
+.dark {
+  color-scheme: dark;
+  --surface: #0a0a0b;
+  --raised: #111113;
+  --sunken: #18181b;
+  --hover: #27272a;
+  --line: rgb(39 39 42 / 0.5);
+  --line-strong: #3f3f46;
+  --line-focus: #52525b;
+  --ink: #f4f4f5;
+  --ink-secondary: #d4d4d8;
+  --ink-body: #a1a1aa;
+  --ink-muted: #a1a1aa;
+  --ink-faint: #71717a;
+  --accent: #34d399;
+  --accent-solid: #10b981;
+  --accent-soft: rgb(16 185 129 / 0.1);
+  --warning: #f59e0b;
+  --danger: #f87171;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.5);
+  --shadow-focus: 0 4px 16px rgb(0 0 0 / 0.6);
 }
 
 html,
-body {
+body,
+#root {
+  min-height: 100%;
   margin: 0;
   padding: 0;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
 }
