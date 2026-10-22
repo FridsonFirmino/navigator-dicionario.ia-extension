@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build e publicar release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@v7
+
+      - name: Configurar pnpm e Node.js
+        uses: pnpm/setup@v3
+        with:
+          version: 12.8.1
+          runtime: node@22
+          cache: true
+          require-lockfile: true
+
+      - name: Validar versão da release
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          TAG_VERSION="${RELEASE_TAG#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          MANIFEST_VERSION="$(node -p "JSON.parse(require('fs').readFileSync('src/manifest.json', 'utf8')).version")"
+
+          if [[ "$TAG_VERSION" != "$PACKAGE_VERSION" || "$TAG_VERSION" != "$MANIFEST_VERSION" ]]; then
+            echo "::error::O tag ($TAG_VERSION), package.json ($PACKAGE_VERSION) e manifest.json ($MANIFEST_VERSION) precisam ter a mesma versão."
+            exit 1
+          fi
+
+      - name: Verificar tipos
+        run: pnpm run typecheck
+
+      - name: Criar build da extensão
+        run: pnpm run build
+
+      - name: Empacotar extensão
+        working-directory: dist
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          ASSET_NAME="dicionario-ia-extension-${RELEASE_TAG//\//-}.zip"
+          zip -r "../$ASSET_NAME" .
+          echo "asset_name=$ASSET_NAME" >> "$GITHUB_OUTPUT"
+        id: package
+
+      - name: Criar GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          ASSET_NAME: ${{ steps.package.outputs.asset_name }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$ASSET_NAME" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$ASSET_NAME" \
+              --title "Dicionário.IA $RELEASE_TAG" \
+              --generate-notes \
+              --verify-tag
+          fi

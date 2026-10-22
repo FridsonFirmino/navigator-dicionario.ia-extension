@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Typecheck e build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@v7
+
+      - name: Configurar pnpm e Node.js
+        uses: pnpm/setup@v3
+        with:
+          version: 12.8.1
+          runtime: node@22
+          cache: true
+          require-lockfile: true
+
+      - name: Verificar tipos
+        run: pnpm run typecheck
+
+      - name: Criar build da extensão
+        run: pnpm run build
+
+      - name: Guardar artefacto da extensão
+        uses: actions/upload-artifact@v7
+        with:
+          name: dicionario-ia-extension-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
