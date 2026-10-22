@@ -19,7 +19,7 @@ export interface Definition {
 }
 
 export type RequestMessage =
-  | { type: 'LOOKUP_WORD'; word: string }
+  | { type: 'LOOKUP_WORD'; word: string; context?: string }
   | { type: 'GET_SETTINGS' }
   | { type: 'SAVE_SETTINGS'; settings: Settings }
 
