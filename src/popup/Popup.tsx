@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  DEFAULT_TRANSLATION_CONTEXT,
+  TRANSLATION_CONTEXTS,
+  TRANSLATION_CONTEXT_STORAGE_KEY,
+} from "../contexts/translationContexts";
 import type { Definition, ResponseMessage } from "../types/messages";
 
 type Theme = "light" | "dark";
@@ -16,7 +21,9 @@ export default function Popup() {
   const [loading, setLoading] = useState(false);
   const [definition, setDefinition] = useState<Definition | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [lookupContext, setLookupContext] = useState<string | null>(null);
+  const [lookupContext, setLookupContext] = useState<string>(
+    DEFAULT_TRANSLATION_CONTEXT,
+  );
   const [hasSearched, setHasSearched] = useState(false);
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const lastRequestId = useRef<string | null>(null);
@@ -29,13 +36,35 @@ export default function Popup() {
       ?.setAttribute("content", theme === "dark" ? "#0a0a0b" : "#ffffff");
   }, [theme]);
 
+  useEffect(() => {
+    void chrome.storage.local
+      .get(TRANSLATION_CONTEXT_STORAGE_KEY)
+      .then((stored) => {
+        const context = stored[TRANSLATION_CONTEXT_STORAGE_KEY];
+        if (
+          typeof context === "string" &&
+          TRANSLATION_CONTEXTS.some((item) => item.label === context)
+        ) {
+          setLookupContext(context);
+        }
+      });
+  }, []);
+
+  const changeLookupContext = (context: string) => {
+    setLookupContext(context);
+    void chrome.storage.local.set({
+      [TRANSLATION_CONTEXT_STORAGE_KEY]: context,
+    });
+  };
+
   const search = async (term: string, context?: string) => {
     const normalized = term.trim();
     if (!normalized) return;
 
     setWord(normalized);
     setHasSearched(true);
-    setLookupContext(context ?? null);
+    const selectedContext = context ?? lookupContext;
+    setLookupContext(selectedContext);
     setLoading(true);
     setError(null);
     setDefinition(null);
@@ -44,7 +73,7 @@ export default function Popup() {
       const response = (await chrome.runtime.sendMessage({
         type: "LOOKUP_WORD",
         word: normalized,
-        context,
+        context: selectedContext,
       })) as ResponseMessage;
 
       if (response.type === "LOOKUP_RESULT" && response.ok) {
@@ -78,6 +107,7 @@ export default function Popup() {
         "context" in value && typeof value.context === "string"
           ? value.context
           : undefined;
+      if (context) changeLookupContext(context);
       void search(value.word, context);
       void chrome.storage.session.remove("pendingLookup");
     };
@@ -106,7 +136,7 @@ export default function Popup() {
     setHasSearched(false);
     setDefinition(null);
     setError(null);
-    setLookupContext(null);
+    setLookupContext(DEFAULT_TRANSLATION_CONTEXT);
   };
 
   return (
@@ -164,7 +194,19 @@ export default function Popup() {
             />
             <div className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent">
               <TargetIcon />
-              Área de conhecimento atual: {lookupContext ?? "Geral"}
+              Área de conhecimento atual:
+              <select
+                aria-label="Área de conhecimento atual"
+                value={lookupContext}
+                onChange={(event) => changeLookupContext(event.target.value)}
+                className="cursor-pointer bg-transparent font-semibold text-accent outline-none"
+              >
+                {TRANSLATION_CONTEXTS.map((context) => (
+                  <option key={context.id} value={context.label}>
+                    {context.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <SearchExamples
               onSelect={(term) => void search(term, lookupContext ?? undefined)}

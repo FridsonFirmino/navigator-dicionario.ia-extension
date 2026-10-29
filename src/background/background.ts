@@ -2,21 +2,7 @@ import { lookupWord } from "../services/dictionaryService";
 import type { Definition, RequestMessage } from "../types/messages";
 import { DEFAULT_SETTINGS } from "../types/messages";
 import { getSettings, saveSettings } from "../utils/storage";
-
-const TRANSLATION_CONTEXTS = [
-  { id: "geral", label: "Geral" },
-  { id: "economia", label: "Economia" },
-  { id: "tecnologia", label: "Tecnologia" },
-  { id: "ciencias", label: "Ciências" },
-  { id: "saude", label: "Saúde" },
-  { id: "direito", label: "Direito" },
-  { id: "educacao", label: "Educação" },
-  { id: "meio-ambiente", label: "Meio ambiente" },
-  { id: "historia", label: "História" },
-  { id: "artes-cultura", label: "Artes e cultura" },
-  { id: "desporto", label: "Desporto" },
-  { id: "negocios", label: "Negócios" },
-];
+import { TRANSLATION_CONTEXTS, TRANSLATION_CONTEXT_STORAGE_KEY } from "../contexts/translationContexts";
 
 chrome.runtime.onInstalled.addListener(async () => {
   await saveSettings(await getSettings());
@@ -52,6 +38,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       const contextId = info.menuItemId.slice("dicionario-ia-context-".length);
       const context = TRANSLATION_CONTEXTS.find((item) => item.id === contextId);
       if (context) {
+        void chrome.storage.local.set({
+          [TRANSLATION_CONTEXT_STORAGE_KEY]: context.label,
+        });
         void openSidebarWithWord(word, context.label, tab.windowId);
       }
     }
