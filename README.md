@@ -1,4 +1,4 @@
-# Dicionário.IA
+# Dicionário by IA
 
 [![Pipeline CI](https://github.com/FridsonFirmino/navigator-dicionario.ia-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/FridsonFirmino/navigator-dicionario.ia-extension/actions/workflows/ci.yml)
 
